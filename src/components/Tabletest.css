@@ -1,0 +1,16 @@
+th:nth-last-child(-n + 2) {
+  pointer-events: none;
+}
+
+img {
+  width: 64px;
+  height: 32px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  /* Optional: specify a background color */
+  background-color: white;
+}
