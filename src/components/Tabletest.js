@@ -25,6 +25,7 @@ import CloseIcon from "@mui/icons-material/Close"
 import AddCircleIcon from "@mui/icons-material/AddCircle"
 import UpgradeIcon from "@mui/icons-material/Upgrade"
 import GetAppIcon from "@mui/icons-material/GetApp"
+import UploadIcon from "@mui/icons-material/Upload"
 import "./Tabletest.css"
 import * as XLSX from "xlsx"
 import { getProducts, addProduct, updateProduct, deleteProduct } from "../api"
@@ -153,6 +154,7 @@ export default function EnhancedTable({
   const [open, setOpen] = React.useState(false)
   const [downLoad, setDownLoad] = React.useState(false)
   const [isDeleteClicked, setIsDeleteClicked] = React.useState(false)
+  const [uploadFile, setUploadFile] = React.useState(null)
 
   React.useEffect(() => {
     getProducts()
@@ -321,6 +323,34 @@ export default function EnhancedTable({
     XLSX.writeFile(workbook, "table-data.xlsx")
   }
 
+  const handleUpload = (e) => {
+    console.log("upload")
+    const file = e.target.files[0]
+    if (!(file instanceof Blob)) {
+      console.log("Not a Blob object")
+      return
+    }
+    // reader.readAsBinaryString(file)
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const binaryData = event.target.result
+      const workbook = XLSX.read(binaryData, { type: "binary" })
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+      const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+      const headers = sheetData[0]
+      const rows = sheetData.slice(1)
+      const parsedData = rows.map((row) => {
+        return headers.reduce((obj, header, index) => {
+          obj[header] = row[index]
+          return obj
+        }, {})
+      })
+      setUploadFile(parsedData)
+      console.log(parsedData)
+    }
+    reader.readAsBinaryString(file)
+  }
+
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
@@ -333,6 +363,15 @@ export default function EnhancedTable({
           disabled={downLoad}
         >
           <GetAppIcon />
+        </IconButton>
+        <IconButton color='primary' aria-label='upload excel' component='label'>
+          <input
+            hidden
+            type='file'
+            accept='.xlsx, .xls'
+            onChange ={handleUpload}
+          />
+          <UploadIcon />
         </IconButton>
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
