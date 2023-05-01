@@ -322,15 +322,12 @@ export default function EnhancedTable({
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1")
     XLSX.writeFile(workbook, "table-data.xlsx")
   }
-
   const handleUpload = (e) => {
-    console.log("upload")
     const file = e.target.files[0]
     if (!(file instanceof Blob)) {
       console.log("Not a Blob object")
       return
     }
-    // reader.readAsBinaryString(file)
     const reader = new FileReader()
     reader.onload = (event) => {
       const binaryData = event.target.result
@@ -345,8 +342,10 @@ export default function EnhancedTable({
           return obj
         }, {})
       })
-      setUploadFile(parsedData)
-      console.log(parsedData)
+      setUploadFile(parsedData, ...item)
+      setEditItem(true)
+      setAdding(true)
+      setDownLoad(true)
     }
     reader.readAsBinaryString(file)
   }
@@ -364,15 +363,25 @@ export default function EnhancedTable({
         >
           <GetAppIcon />
         </IconButton>
-        <IconButton color='primary' aria-label='upload excel' component='label'>
+        <IconButton
+          color='primary'
+          aria-label='upload excel'
+          component='label'
+          disabled={downLoad}
+        >
           <input
             hidden
             type='file'
             accept='.xlsx, .xls'
-            onChange ={handleUpload}
+            onChange={handleUpload}
           />
           <UploadIcon />
         </IconButton>
+        {/* {uploadFile ? (
+          <IconButton color='primary' onClick={() => setUploadFile(null)}>
+            <CloseIcon />
+          </IconButton>
+        ) : null} */}
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
@@ -459,6 +468,45 @@ export default function EnhancedTable({
                   </TableCell>
                 </TableRow>
               ) : null}
+              {uploadFile
+                ? stableSort(uploadFile, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row) => {
+                      return (
+                        <React.Fragment key={row.id}>
+                          <TableRow hover tabIndex={-1} key={row.id}>
+                            <TableCell key={row.id} align='center'>
+                              {row.title}
+                            </TableCell>
+                            <TableCell align='center'>
+                              {row.description}
+                            </TableCell>
+                            <TableCell align='center' type='number'>
+                              {row.price}
+                            </TableCell>
+                            <TableCell align='center'>
+                              {row.product_image ? (
+                                <img
+                                  src={`https://app.spiritx.co.nz/storage/${row.product_image}`}
+                                  alt={row.title}
+                                />
+                              ) : (
+                                <span>No image available</span>
+                              )}
+                            </TableCell>
+                            <TableCell align='center'>
+                              <IconButton color='primary' disabled={true}>
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton color='primary' disabled={true}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        </React.Fragment>
+                      )
+                    })
+                : null}
               {stableSort(item, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
