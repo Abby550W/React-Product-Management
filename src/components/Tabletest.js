@@ -324,6 +324,7 @@ export default function EnhancedTable({
   }
   const handleUpload = (e) => {
     const file = e.target.files[0]
+    // setUploadFile(null)
     if (!(file instanceof Blob)) {
       console.log("Not a Blob object")
       return
@@ -349,6 +350,13 @@ export default function EnhancedTable({
     }
     reader.readAsBinaryString(file)
   }
+  // const handleExitUpload = () => {
+  //   setUploadFile(null)
+  //   setAdding(false)
+  //   setDownLoad(false)
+  //   setEditItem(false)
+  //   console.log(uploadFile)
+  // }
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -378,7 +386,7 @@ export default function EnhancedTable({
           <UploadIcon />
         </IconButton>
         {/* {uploadFile ? (
-          <IconButton color='primary' onClick={() => setUploadFile(null)}>
+          <IconButton color='primary' onClick={handleExitUpload}>
             <CloseIcon />
           </IconButton>
         ) : null} */}
@@ -505,7 +513,7 @@ export default function EnhancedTable({
                           </TableRow>
                         </React.Fragment>
                       )
-                    })
+                    }) 
                 : null}
               {stableSort(item, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
