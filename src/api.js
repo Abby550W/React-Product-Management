@@ -1,13 +1,13 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL: "https://app.spiritx.co.nz/api",
+  baseURL: "http://localhost:8000/api",
 })
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token")
     if (token) {
-      config.headers.token = `${token}`
+      config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
@@ -40,7 +40,7 @@ export const updateProduct = async (id, product) => {
     headers: {},
   }
   try {
-    return await api.post(`/product/${id}`, product, config)
+    return await api.post(`/products/${id}`, product, config)
   } catch (error) {
     console.log(error)
     throw error
@@ -51,7 +51,7 @@ export const deleteProduct = async (id) => {
     headers: {},
   }
   try {
-    return await api.delete(`/product/${id}`, config)
+    return await api.delete(`/products/${id}`, config)
   } catch (error) {
     console.log(error)
     throw error

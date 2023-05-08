@@ -60,7 +60,7 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "title",
+    id: "name",
     numeric: false,
     label: "Title",
   },
@@ -138,10 +138,10 @@ export default function EnhancedTable({
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(5)
   const [product, setProduct] = React.useState({
-    title: "",
+    name: "",
     description: "",
     price: "",
-    product_image: null,
+    image: null,
     category_id: 99,
   })
   const token = localStorage.getItem("token")
@@ -155,6 +155,7 @@ export default function EnhancedTable({
   const [downLoad, setDownLoad] = React.useState(false)
   const [isDeleteClicked, setIsDeleteClicked] = React.useState(false)
   const [uploadFile, setUploadFile] = React.useState(null)
+  const baseUrl = "http://localhost:8000/storage/"
 
   React.useEffect(() => {
     getProducts()
@@ -173,8 +174,8 @@ export default function EnhancedTable({
     setItem(
       formData.filter((prod) => {
         if (
-          (prod.title &&
-            prod.title.toLowerCase().includes(search.toLowerCase())) ||
+          (prod.name &&
+            prod.name.toLowerCase().includes(search.toLowerCase())) ||
           (prod.description &&
             prod.description.toLowerCase().includes(search.toLowerCase()))
         ) {
@@ -201,16 +202,15 @@ export default function EnhancedTable({
     setOrderBy(property)
   }
   const handleAddClick = () => {
-    if (!product.title.trim() || !product.price.trim()) {
-      alert("Please enter a valid title or price.")
+    if (!product.name.trim() || !product.price.trim()) {
+      alert("Please enter a valid name or price.")
       return
     }
     const newData = new FormData()
-    product.title && newData.append("title", product.title)
+    product.name && newData.append("name", product.name)
     product.price && newData.append("price", product.price)
     product.description && newData.append("description", product.description)
-    product.product_image &&
-      newData.append("product_image", product.product_image)
+    product.image && newData.append("image", product.image)
     newData.append("category_id", product.category_id)
 
     addProduct(newData)
@@ -225,10 +225,10 @@ export default function EnhancedTable({
       })
       .catch((err) => console.log(err))
     setProduct({
-      title: "",
+      name: "",
       description: "",
       price: "",
-      product_image: null,
+      image: null,
       category_id: 99,
     })
   }
@@ -240,11 +240,11 @@ export default function EnhancedTable({
   }
   const handleEditSave = () => {
     const newData = new FormData()
-    newData.append("title", product.title)
+    newData.append("name", product.name)
     newData.append("description", product.description)
     newData.append("price", product.price)
-    if (product.product_image) {
-      newData.append("product_image", product.product_image)
+    if (product.image) {
+      newData.append("image", product.image)
     }
     newData.append("category_id", product.category_id)
     newData.append("_method", "put")
@@ -264,10 +264,10 @@ export default function EnhancedTable({
       .catch((err) => console.log(err))
 
     setProduct({
-      title: "",
+      name: "",
       description: "",
       price: "",
-      product_image: null,
+      image: null,
       category_id: 99,
     })
   }
@@ -316,7 +316,7 @@ export default function EnhancedTable({
     }
   }, [currentDelete, isDeleteClicked])
   const handleDownload = () => {
-    const sheetData = item.map((row) => [row.title, row.description, row.price])
+    const sheetData = item.map((row) => [row.name, row.description, row.price])
     const workbook = XLSX.utils.book_new()
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData)
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1")
@@ -408,7 +408,7 @@ export default function EnhancedTable({
                       placeholder='Title'
                       variant='outlined'
                       onChange={(e) =>
-                        setProduct({ ...product, title: e.target.value })
+                        setProduct({ ...product, name: e.target.value })
                       }
                     />
                   </TableCell>
@@ -445,13 +445,13 @@ export default function EnhancedTable({
                         onChange={(e) =>
                           setProduct({
                             ...product,
-                            product_image: e.target.files[0],
+                            image: e.target.files[0],
                           })
                         }
                       />
-                      {product.product_image && (
+                      {product.image && (
                         <img
-                          src={URL.createObjectURL(product.product_image)}
+                          src={URL.createObjectURL(product.image)}
                           alt='Selected Image'
                         />
                       )}
@@ -484,7 +484,7 @@ export default function EnhancedTable({
                         <React.Fragment key={row.id}>
                           <TableRow hover tabIndex={-1} key={row.id}>
                             <TableCell key={row.id} align='center'>
-                              {row.title}
+                              {row.name}
                             </TableCell>
                             <TableCell align='center'>
                               {row.description}
@@ -493,11 +493,8 @@ export default function EnhancedTable({
                               {row.price}
                             </TableCell>
                             <TableCell align='center'>
-                              {row.product_image ? (
-                                <img
-                                  src={`https://app.spiritx.co.nz/storage/${row.product_image}`}
-                                  alt={row.title}
-                                />
+                              {row.image ? (
+                                <img src={baseUrl + row.image} alt={row.name} />
                               ) : (
                                 <span>No image available</span>
                               )}
@@ -513,7 +510,7 @@ export default function EnhancedTable({
                           </TableRow>
                         </React.Fragment>
                       )
-                    }) 
+                    })
                 : null}
               {stableSort(item, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -524,11 +521,11 @@ export default function EnhancedTable({
                         <TableRow hover tabIndex={-1} key={row.id}>
                           <TableCell key={row.id} align='center'>
                             <Input
-                              placeholder={row.title}
+                              placeholder={row.name}
                               onChange={(e) =>
                                 setProduct({
                                   ...product,
-                                  title: e.target.value,
+                                  name: e.target.value,
                                 })
                               }
                             />
@@ -570,22 +567,17 @@ export default function EnhancedTable({
                                 onChange={(e) =>
                                   setProduct({
                                     ...product,
-                                    product_image: e.target.files[0],
+                                    image: e.target.files[0],
                                   })
                                 }
                               />
-                              {product.product_image ? (
+                              {product.image ? (
                                 <img
-                                  src={URL.createObjectURL(
-                                    product.product_image
-                                  )}
+                                  src={URL.createObjectURL(product.image)}
                                   alt='Selected Image'
                                 />
-                              ) : row.product_image ? (
-                                <img
-                                  src={`https://app.spiritx.co.nz/storage/${row.product_image}`}
-                                  alt={row.title}
-                                />
+                              ) : row.image ? (
+                                <img src={baseUrl + row.image} alt={row.name} />
                               ) : (
                                 <span>No image available</span>
                               )}
@@ -624,7 +616,7 @@ export default function EnhancedTable({
                           </Dialog>
                           <TableRow hover tabIndex={-1} key={row.id}>
                             <TableCell key={row.id} align='center'>
-                              {row.title}
+                              {row.name}
                             </TableCell>
                             <TableCell align='center'>
                               {row.description}
@@ -633,11 +625,8 @@ export default function EnhancedTable({
                               {row.price}
                             </TableCell>
                             <TableCell align='center'>
-                              {row.product_image ? (
-                                <img
-                                  src={`https://app.spiritx.co.nz/storage/${row.product_image}`}
-                                  alt={row.title}
-                                />
+                              {row.image ? (
+                                <img src={baseUrl + row.image} alt={row.name} />
                               ) : (
                                 <span>No image available</span>
                               )}

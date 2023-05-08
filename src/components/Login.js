@@ -18,9 +18,9 @@ export default function Login({ setSearchVisible }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     axios
-      .post("https://app.spiritx.co.nz/api/login", { email, password })
+      .post("http://localhost:8000/api/login", { email, password })
       .then((res) => {
-        localStorage.setItem("token", res.data.token.token)
+        localStorage.setItem("token", res.data.token)
         navigate("/products")
       })
       .catch((err) => console.log(err))
